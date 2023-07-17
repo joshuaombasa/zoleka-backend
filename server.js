@@ -1,9 +1,17 @@
-const { response } = require('express')
+const { response, json } = require('express')
+
 const express = require('express')
+
 const mysql = require('mysql')
+
+const cors = require('cors');  
+
 const app = express()
-const cors = require('cors');
+
 app.use(cors());
+
+app.use(express.json())
+
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -15,7 +23,7 @@ const connection = mysql.createConnection({
 connection.connect()
 
 app.get('/', (req,res) => {
-    res.json({"name" : "Joshu Ombasa Nyambega"})
+    res.json({"name" : "Joshua Ombasa Nyambega"})
 })
 
 app.get('/customers', (req, res) => {
@@ -29,14 +37,21 @@ app.get('/customers', (req, res) => {
 app.get('/customers/:id', (req, res) => {
     const id = req.params.id
     let sql = 'SELECT * FROM customer WHERE customer_id = ?'
-    connection.query(sql, [parseInt(id)], (error, response) => {
+    connection.query(sql, [parseInt(id)], (error, results) => {
         if (error) res.send(error)
-        res.send(response)
+        res.send(results)
     })
 })
 
-app.post('/customers', () => {
-    
+app.post('/customers', (req, res) => {
+    const {name, location, country} = req.body
+   
+    const sql = 'INSERT INTO customer  (name, location, country) VALUES (?, ?, ?)'
+
+    connection.query(sql, [name, location, country], (error, results) => {
+        if (error) res.send(error)
+        res.send(results)
+    })
 })
 
 
